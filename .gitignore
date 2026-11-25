@@ -1,0 +1,22 @@
+# Authored sources only. Proprietary inputs and generated outputs stay local.
+/.build/
+/build-proof/
+/calculator-proof/
+/generated/
+/mod/
+/dist/
+/sdk/
+/inputs/
+/assets/
+**/bin/
+**/obj/
+**/__pycache__/
+*.dll
+*.pdb
+*.zip
+*.wav
+*.png
+*.pb
+*.bin
+*.log
+/delay-audit/census.json

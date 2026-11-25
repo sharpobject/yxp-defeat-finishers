@@ -1,0 +1,7 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Python admits current game/media inputs and invokes Roslyn against the
+       game's net40-compatible references, then audits the completed library. -->
+  <Target Name="Build">
+    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)build.py&quot;" />
+  </Target>
+</Project>
