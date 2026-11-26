@@ -1,7 +1,7 @@
 {
   "id": "com.sharpobject.defeatfinishers",
   "name": "鸭神与压路机",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "sharpobject",
   "description": "屠馗瞬狱杀与林小月时停压路机淘汰演出；替换满足条件的整回合动画，保留原场景、角色外观和实际伤害飘字。",
   "sdkVersion": ">=1.0.0 <2.0.0",
@@ -13,6 +13,7 @@
       "BattleExecuter.SetVisible",
       "BattleCharacter.OnTurnStarted",
       "CardActionBase.Execute",
+      "CardActionBase.ExecuteEffect",
       "BattleCharacter.Attack",
       "BattleExecuter.ResurrectionCheckAsync",
       "BattleCharacter.MoveTo",

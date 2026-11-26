@@ -35,6 +35,8 @@ def main():
     audit = json.loads(args.audit.read_text())
     if audit.get('pass') is not True or audit.get('errors') or audit['sha256'] != sha(dll):
         raise ValueError('The completed DLL does not match its passing final runtime audit.')
+    if audit.get('windows_native', {}).get('pass') is not True:
+        raise ValueError('The completed DLL needs a passing native Windows coverage audit before packaging.')
     out.mkdir(parents=True, exist_ok=True)
     with (out / 'pack.log').open('w') as log:
         subprocess.run(['dotnet', str(args.sdk.resolve() / 'tools/yx-patch.dll'), 'pack', str(mod), '--out', str(out)],

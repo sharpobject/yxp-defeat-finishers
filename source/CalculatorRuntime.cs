@@ -155,8 +155,8 @@ namespace YxpFinisherCalc
                 candidate.LoserUid != loser.battleTempData.uid || loser.battleTempData.hp > 0 ||
                 candidate.CardOrdinal != cardOrdinal || candidate.Turn != TurnCount)
                 return null;
-            // Completed records supply post-battle Destiny; fresh practice
-            // battles supply the native defeat calculation's remaining Destiny.
+            // Ordinary completed records supply post-battle Destiny. Recap and
+            // fresh practice use the native defeat calculation's remaining Destiny.
             // Inner demons and survival talents retaining 1 do not qualify.
             var loserData = result.p1.publicData.uid == candidate.LoserUid ? result.p1.publicData : result.p2.publicData;
             if (loserData.isMirror || loserData.lastRoundData.life <= 0 || remainingDestiny > 0)
@@ -200,25 +200,23 @@ namespace YxpFinisherCalc
             var winner = delta > 0 ? left : delta < 0 ? right :
                 left.battleTempData.uid == battle.firstPlayerId ? left : right;
             var loser = winner == left ? right : left;
-            int remainingDestiny;
-            if (freshPractice)
-            {
-                // Practice preallocates random choices, so an unused suffix is
-                // expected. Missing choices still throw in the native reader.
-                // These retained native operations include Destiny reductions,
-                // immunity and survival talents. They update only the detached
-                // character's tempLife, leaving the input record untouched.
-                loser.ShowDeathDamage(executor.CalLifeDamage(winner, loser));
-                remainingDestiny = loser.characterUI.tempLife;
-            }
-            else
+            if (!freshPractice)
             {
                 // Completed records must agree on turn, consumed random choices,
                 // winner and absolute HP separation (presentation can swap sides).
                 if (executor.battleParamsQueue.Count != 0 || executor.selection.TurnCount != battle.huiHeCount ||
                     winner.battleTempData.uid != battle.winerId || Math.Abs(delta) != Math.Abs(battle.hpDelta))
                     return null;
-                remainingDestiny = loser.battleTempData.playerData.publicData.life;
+            }
+            // Fresh practice preallocates random choices; only that unfinished
+            // shape permits an unused suffix. Recap supplies a completed result
+            // but retains starting Destiny in publicData.life. Its displayed
+            // defeat uses these native operations, including survival effects.
+            int remainingDestiny = loser.battleTempData.playerData.publicData.life;
+            if (freshPractice || context.gameMode == GameMode.ReviewMode)
+            {
+                loser.ShowDeathDamage(executor.CalLifeDamage(winner, loser));
+                remainingDestiny = loser.characterUI.tempLife;
             }
             return executor.selection.Finish(battle, winner, loser, remainingDestiny);
         }

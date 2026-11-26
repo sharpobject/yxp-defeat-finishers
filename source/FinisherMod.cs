@@ -27,6 +27,7 @@ namespace YxpDefeatFinishers
             hooks.Postfix("BattleExecuter", "SetVisible", 1, Visible);
             hooks.Prefix("BattleCharacter", "OnTurnStarted", 0, TurnStarted);
             hooks.Prefix("CardActionBase", "Execute", 2, Card);
+            hooks.Prefix("CardActionBase", "ExecuteEffect", 3, Effect);
             hooks.Prefix("BattleCharacter", "Attack", 4, Attack);
             hooks.Postfix("BattleExecuter", "ResurrectionCheckAsync", 1, Resurrected);
             hooks.Prefix("BattleCharacter", "MoveTo", 3, CompleteMovement);
@@ -127,7 +128,7 @@ namespace YxpDefeatFinishers
         {
             var source = (BattleCharacter)hook.Args[0];
             Session session = Playing(source);
-            if (session == null || session.CallingCard) return true;
+            if (session == null) return true;
             var target = (BattleCharacter)hook.Args[1];
             var action = (CardActionBase)hook.Instance;
             int number = ++session.CardInTurn;
@@ -136,7 +137,21 @@ namespace YxpDefeatFinishers
                 (number == count && session.Selected.Kind == 2 &&
                  CardFactory.GetBaseCardId(action.cardConfig.id) != session.Selected.FinishingCardBaseId))
             { Clear(); return true; }
-            var operation = new CardOperation(session, action, source, target, number == count);
+            // ILRuntime maps CardActionExecuteResult to int. Windows 26939223
+            // preserves UniTask<int>, but not UniTaskCompletionSource<int>.
+            // Keep Execute's native result task and delay its non-generic
+            // ExecuteEffect instead of constructing a second result task.
+            return true;
+        }
+
+        private bool Effect(HookContext hook)
+        {
+            var source = (BattleCharacter)hook.Args[0];
+            Session session = Playing(source);
+            if (session == null || session.CallingEffect || source != session.Source || session.CardInTurn == 0) return true;
+            bool last = session.CardInTurn == session.Selected.CardOrdinal - session.Selected.StartCardOrdinal + 1;
+            var operation = new EffectOperation(session, (CardActionBase)hook.Instance, source,
+                (BattleCharacter)hook.Args[1], (bool)hook.Args[2], last);
             hook.Skip(operation.Start());
             return false;
         }
@@ -314,7 +329,7 @@ namespace YxpDefeatFinishers
             internal CharacterBattleAnimator SourceAnimator, TargetAnimator;
             internal TrackEntry SourceTrack;
             internal DefeatFinisherVisualsPayload.Playback Movie;
-            internal bool CallingTurn, CallingCard;
+            internal bool CallingTurn, CallingEffect;
             internal int CardInTurn;
             internal Session(FinisherMod mod, BattleExecuter executor, BattleResult battle, Selection selected)
             { Mod = mod; Executor = executor; Battle = battle; Selected = selected; }
@@ -365,39 +380,30 @@ namespace YxpDefeatFinishers
             private void Fail(Exception exception) { session.Fail(exception); done.TrySetException(exception); }
         }
 
-        private sealed class CardOperation
+        private sealed class EffectOperation
         {
             private readonly Session session;
             private readonly CardActionBase action;
             private readonly BattleCharacter source, target;
-            private readonly bool last;
-            private readonly UniTaskCompletionSource<CardActionExecuteResult> done = new UniTaskCompletionSource<CardActionExecuteResult>();
-            private UniTask<CardActionExecuteResult>.Awaiter native;
-            internal CardOperation(Session session, CardActionBase action, BattleCharacter source, BattleCharacter target, bool last)
-            { this.session = session; this.action = action; this.source = source; this.target = target; this.last = last; }
-            internal UniTask<CardActionExecuteResult> Start() { session.Movie.BeforeCard(last, Run); return done.Task; }
+            private readonly bool isTempCard, last;
+            private readonly UniTaskCompletionSource done = new UniTaskCompletionSource();
+            internal EffectOperation(Session session, CardActionBase action, BattleCharacter source, BattleCharacter target, bool isTempCard, bool last)
+            { this.session = session; this.action = action; this.source = source; this.target = target; this.isTempCard = isTempCard; this.last = last; }
+            internal UniTask Start() { session.Movie.BeforeCard(last, Run); return done.Task; }
             private void Run()
             {
                 try
                 {
-                    if (!session.CanCalculate()) { done.TrySetResult(CardActionExecuteResult.Failed); return; }
-                    session.CallingCard = true;
-                    try { native = action.Execute(source, target).GetAwaiter(); }
-                    finally { session.CallingCard = false; }
-                    if (native.IsCompleted) Complete(); else native.OnCompleted(Complete);
+                    if (!session.CanCalculate()) { done.TrySetResult(); return; }
+                    UniTask native;
+                    session.CallingEffect = true;
+                    try { native = action.ExecuteEffect(source, target, isTempCard); }
+                    finally { session.CallingEffect = false; }
+                    new NativeCompletion(native, Complete, Fail);
                 }
                 catch (Exception exception) { Fail(exception); }
             }
-            private void Complete()
-            {
-                try
-                {
-                    CardActionExecuteResult result = native.GetResult();
-                    if (result != CardActionExecuteResult.Succeed && session.Mod.current == session) session.Mod.Clear();
-                    done.TrySetResult(result);
-                }
-                catch (Exception exception) { Fail(exception); }
-            }
+            private void Complete() { done.TrySetResult(); }
             private void Fail(Exception exception) { session.Fail(exception); done.TrySetException(exception); }
         }
 

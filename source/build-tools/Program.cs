@@ -50,22 +50,43 @@ static class Program
         }
         if (args[0] != "audit") throw new ArgumentException("Expected reference or audit");
         var resolver = new DefaultAssemblyResolver();
-        foreach (var dir in args.Skip(3)) resolver.AddSearchDirectory(dir);
+        int windowsOption = Array.IndexOf(args, "--windows-native");
+        if (windowsOption >= 0 && windowsOption != args.Length - 2) throw new ArgumentException("--windows-native requires one final manifest path");
+        foreach (var dir in args.Skip(3).Take((windowsOption < 0 ? args.Length : windowsOption) - 3)) resolver.AddSearchDirectory(dir);
         using var output = ModuleDefinition.ReadModule(args[1], new ReaderParameters { AssemblyResolver = resolver });
+        using var windows = windowsOption < 0 ? null : new WindowsNativeAudit(args[windowsOption + 1], output);
         var errors = new List<string>();
         int methods = 0, fields = 0, calls = 0, arrays = 0;
         bool ReflectionType(string name) => name == "System.Type" || name == "System.RuntimeTypeHandle" || name.StartsWith("System.Reflection.", StringComparison.Ordinal) || name == "System.Activator" || name.StartsWith("System.Linq.Expressions.", StringComparison.Ordinal);
         foreach (var type in output.GetTypeReferences())
+        {
             if (ReflectionType(type.FullName)) errors.Add("Runtime metadata type: " + type.FullName);
+            windows?.Type(type);
+        }
         foreach (var reference in output.AssemblyReferences)
             if (reference.Name == "System.Private.CoreLib" || reference.Name == "System.Runtime" || reference.Name == "System.Collections" || reference.Version.Major > 4 && reference.Name.StartsWith("System", StringComparison.Ordinal))
                 errors.Add("Desktop framework reference: " + reference.FullName);
         foreach (var type in output.Types.SelectMany(Types))
-        foreach (var method in type.Methods.Where(m => m.HasBody))
         {
+        if (type.BaseType != null) windows?.Type(type.BaseType);
+        foreach (var implemented in type.Interfaces) windows?.Type(implemented.InterfaceType);
+        foreach (var field in type.Fields) windows?.Type(field.FieldType);
+        foreach (var parameter in type.GenericParameters)
+            foreach (var constraint in parameter.Constraints) windows?.Type(constraint.ConstraintType);
+        foreach (var method in type.Methods)
+        {
+            windows?.Type(method.ReturnType);
+            foreach (var parameter in method.Parameters) windows?.Type(parameter.ParameterType);
+            foreach (var parameter in method.GenericParameters)
+                foreach (var constraint in parameter.Constraints) windows?.Type(constraint.ConstraintType);
+            if (!method.HasBody) continue;
             methods++;
+            foreach (var variable in method.Body.Variables) windows?.Type(variable.VariableType);
+            foreach (var handler in method.Body.ExceptionHandlers)
+                if (handler.CatchType != null) windows?.Type(handler.CatchType);
             foreach (var instruction in method.Body.Instructions)
             {
+                if (instruction.Operand is TypeReference operandType) windows?.Type(operandType, method, instruction);
                 if (instruction.OpCode == OpCodes.Ldtoken)
                 {
                     if (!(instruction.Operand is FieldReference blob) || blob.DeclaringType.Name != "<PrivateImplementationDetails>" || blob.Resolve().RVA == 0)
@@ -75,20 +96,35 @@ static class Program
                 if (instruction.Operand is MethodReference called)
                 {
                     calls++;
+                    windows?.Type(called.DeclaringType, method, instruction);
+                    if (called is GenericInstanceMethod genericCall)
+                        foreach (var argument in genericCall.GenericArguments) windows?.Type(argument, method, instruction);
                     if (ReflectionType(called.DeclaringType.FullName) || called.Name == "GetType" && called.DeclaringType.FullName == "System.Object")
                         errors.Add("Runtime reflection call: " + called.FullName);
-                    try { if (called.Resolve() == null) errors.Add("Unresolved method: " + called.FullName); }
+                    try {
+                        var definition = called.Resolve();
+                        if (definition == null) errors.Add("Unresolved method: " + called.FullName);
+                        windows?.Method(called, definition, method, instruction);
+                    }
                     catch (Exception e) { errors.Add("Unresolved method: " + called.FullName + " " + e.Message); }
                 }
                 if (instruction.Operand is FieldReference field)
                 {
                     fields++;
-                    try { if (field.Resolve() == null) errors.Add("Unresolved field: " + field.FullName); }
+                    windows?.Type(field.DeclaringType, method, instruction);
+                    windows?.Type(field.FieldType, method, instruction);
+                    try {
+                        var definition = field.Resolve();
+                        if (definition == null) errors.Add("Unresolved field: " + field.FullName);
+                        windows?.Field(field, definition, method, instruction);
+                    }
                     catch (Exception e) { errors.Add("Unresolved field: " + field.FullName + " " + e.Message); }
                 }
             }
         }
-        Save(args[2], new { pass = errors.Count == 0, sha256 = Hash(args[1]), methods, calls, fields, arrayInitializers = arrays, references = output.AssemblyReferences.Select(r => r.FullName).ToArray(), errors = errors.Distinct().ToArray() });
+        }
+        if (windows != null) errors.AddRange(windows.Errors);
+        Save(args[2], new { pass = errors.Count == 0, sha256 = Hash(args[1]), methods, calls, fields, arrayInitializers = arrays, references = output.AssemblyReferences.Select(r => r.FullName).ToArray(), windows_native = windows?.Report, errors = errors.Distinct().ToArray() });
         if (errors.Count != 0) throw new InvalidDataException("Final runtime audit failed: " + string.Join("\n", errors.Distinct().Take(20)));
         Console.WriteLine("PASS final runtime: no reflection, all direct methods/fields resolve against original game and SDK references");
     }

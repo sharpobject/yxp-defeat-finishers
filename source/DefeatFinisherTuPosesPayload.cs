@@ -271,14 +271,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[40] = skeleton.Slots.Items[38];
             skeleton.DrawOrder.Items[41] = skeleton.Slots.Items[39];
             skeleton.DrawOrder.Items[42] = skeleton.Slots.Items[42];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose0_3()
         {
@@ -465,14 +457,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[40] = skeleton.Slots.Items[37];
             skeleton.DrawOrder.Items[41] = skeleton.Slots.Items[38];
             skeleton.DrawOrder.Items[42] = skeleton.Slots.Items[42];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose0_4()
         {
@@ -659,14 +643,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[40] = skeleton.Slots.Items[41];
             skeleton.DrawOrder.Items[41] = skeleton.Slots.Items[42];
             skeleton.DrawOrder.Items[42] = skeleton.Slots.Items[33];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose0_5()
         {
@@ -862,14 +838,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[40] = skeleton.Slots.Items[38];
             skeleton.DrawOrder.Items[41] = skeleton.Slots.Items[39];
             skeleton.DrawOrder.Items[42] = skeleton.Slots.Items[42];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose0_6()
         {
@@ -1067,14 +1035,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[40] = skeleton.Slots.Items[38];
             skeleton.DrawOrder.Items[41] = skeleton.Slots.Items[39];
             skeleton.DrawOrder.Items[42] = skeleton.Slots.Items[42];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Capture1()
         {
@@ -1323,14 +1283,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[40] = skeleton.Slots.Items[38];
             skeleton.DrawOrder.Items[41] = skeleton.Slots.Items[39];
             skeleton.DrawOrder.Items[42] = skeleton.Slots.Items[42];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose1_3()
         {
@@ -1517,14 +1469,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[40] = skeleton.Slots.Items[37];
             skeleton.DrawOrder.Items[41] = skeleton.Slots.Items[38];
             skeleton.DrawOrder.Items[42] = skeleton.Slots.Items[42];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose1_4()
         {
@@ -1711,14 +1655,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[40] = skeleton.Slots.Items[41];
             skeleton.DrawOrder.Items[41] = skeleton.Slots.Items[42];
             skeleton.DrawOrder.Items[42] = skeleton.Slots.Items[33];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose1_5()
         {
@@ -1914,14 +1850,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[40] = skeleton.Slots.Items[38];
             skeleton.DrawOrder.Items[41] = skeleton.Slots.Items[39];
             skeleton.DrawOrder.Items[42] = skeleton.Slots.Items[42];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose1_6()
         {
@@ -2119,14 +2047,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[40] = skeleton.Slots.Items[38];
             skeleton.DrawOrder.Items[41] = skeleton.Slots.Items[39];
             skeleton.DrawOrder.Items[42] = skeleton.Slots.Items[42];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Capture2()
         {
@@ -2384,14 +2304,7 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[66] = skeleton.Slots.Items[54];
             skeleton.DrawOrder.Items[67] = skeleton.Slots.Items[55];
             skeleton.DrawOrder.Items[68] = skeleton.Slots.Items[68];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = 1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
+            AuthoredIk0.Apply(skeleton, -1f, 0f, null, 1f, MixBlend.Replace, MixDirection.In);
         }
         private void Pose2_3()
         {
@@ -2604,14 +2517,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[66] = skeleton.Slots.Items[0];
             skeleton.DrawOrder.Items[67] = skeleton.Slots.Items[1];
             skeleton.DrawOrder.Items[68] = skeleton.Slots.Items[68];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose2_4()
         {
@@ -2824,14 +2729,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[66] = skeleton.Slots.Items[2];
             skeleton.DrawOrder.Items[67] = skeleton.Slots.Items[37];
             skeleton.DrawOrder.Items[68] = skeleton.Slots.Items[38];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose2_5()
         {
@@ -3050,14 +2947,7 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[66] = skeleton.Slots.Items[54];
             skeleton.DrawOrder.Items[67] = skeleton.Slots.Items[55];
             skeleton.DrawOrder.Items[68] = skeleton.Slots.Items[68];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = 1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
+            AuthoredIk0.Apply(skeleton, -1f, 0f, null, 1f, MixBlend.Replace, MixDirection.In);
         }
         private void Pose2_6()
         {
@@ -3277,14 +3167,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[66] = skeleton.Slots.Items[54];
             skeleton.DrawOrder.Items[67] = skeleton.Slots.Items[55];
             skeleton.DrawOrder.Items[68] = skeleton.Slots.Items[68];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Capture3()
         {
@@ -3542,14 +3424,7 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[66] = skeleton.Slots.Items[54];
             skeleton.DrawOrder.Items[67] = skeleton.Slots.Items[55];
             skeleton.DrawOrder.Items[68] = skeleton.Slots.Items[68];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = 1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
+            AuthoredIk0.Apply(skeleton, -1f, 0f, null, 1f, MixBlend.Replace, MixDirection.In);
         }
         private void Pose3_3()
         {
@@ -3762,14 +3637,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[66] = skeleton.Slots.Items[0];
             skeleton.DrawOrder.Items[67] = skeleton.Slots.Items[1];
             skeleton.DrawOrder.Items[68] = skeleton.Slots.Items[68];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose3_4()
         {
@@ -3982,14 +3849,6 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[66] = skeleton.Slots.Items[2];
             skeleton.DrawOrder.Items[67] = skeleton.Slots.Items[37];
             skeleton.DrawOrder.Items[68] = skeleton.Slots.Items[38];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
         }
         private void Pose3_5()
         {
@@ -4208,14 +4067,7 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[66] = skeleton.Slots.Items[54];
             skeleton.DrawOrder.Items[67] = skeleton.Slots.Items[55];
             skeleton.DrawOrder.Items[68] = skeleton.Slots.Items[68];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = 1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
+            AuthoredIk0.Apply(skeleton, -1f, 0f, null, 1f, MixBlend.Replace, MixDirection.In);
         }
         private void Pose3_6()
         {
@@ -4435,14 +4287,13 @@ internal static partial class DefeatFinisherVisualsPayload
             skeleton.DrawOrder.Items[66] = skeleton.Slots.Items[54];
             skeleton.DrawOrder.Items[67] = skeleton.Slots.Items[55];
             skeleton.DrawOrder.Items[68] = skeleton.Slots.Items[68];
-            skeleton.IkConstraints.Items[0].BendDirection = 1;
-            skeleton.IkConstraints.Items[1].BendDirection = -1;
-            skeleton.IkConstraints.Items[2].BendDirection = 1;
-            skeleton.IkConstraints.Items[3].BendDirection = 1;
-            skeleton.IkConstraints.Items[4].BendDirection = 1;
-            skeleton.IkConstraints.Items[5].BendDirection = 1;
-            skeleton.IkConstraints.Items[6].BendDirection = -1;
-            skeleton.IkConstraints.Items[7].BendDirection = 1;
+        }
+        private static readonly IkConstraintTimeline AuthoredIk0 = CreateAuthoredIk0();
+        private static IkConstraintTimeline CreateAuthoredIk0()
+        {
+            var timeline = new IkConstraintTimeline(1, 0, 1);
+            timeline.SetFrame(0, 0f, 1.0f, 0.0f, 1, false, false);
+            return timeline;
         }
     }
 }
