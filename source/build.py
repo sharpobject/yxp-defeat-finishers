@@ -45,14 +45,31 @@ def main():
     parser.add_argument('--bundles', type=Path, default=Path(os.environ['YXP_FINISHER_BUNDLES']) if 'YXP_FINISHER_BUNDLES' in os.environ else None,
                         help='Complete native bundle directory for the prepared catalog; read only')
     parser.add_argument('--sdk', type=Path, default=REPORT / 'sdk')
+    parser.add_argument('--windows-native', type=Path,
+                        help='Verified Windows metadata manifest; defaults to windows-native.json in the selected game input')
     args = parser.parse_args()
+    args.sdk = args.sdk.resolve()
     workspace = args.workspace.resolve()
     if not (workspace / 'runbooks/yxp/INDEX.md').is_file():
         raise ValueError('Provide --workspace or YXP_WORKSPACE for the documented native-input/generator workspace.')
     YXP = workspace / 'reports/yxp'; OLD = YXP / 'defeat-finishers-20261125'
     RETAIL = YXP / 'retail-language-systematic-20261031/source'
-    game = (args.game_input or RETAIL / 'inputs/retail-26776454').resolve()
+    if args.game_input is None:
+        spec = importlib.util.spec_from_file_location('finisher_native_target', RETAIL / 'target_config.py')
+        target_config = importlib.util.module_from_spec(spec); spec.loader.exec_module(target_config)
+        target = target_config.verify_inputs('retail')
+        target_config.retained_hot_input(target)
+        game = (RETAIL / target['input_root']).resolve()
+    else:
+        game = args.game_input.resolve()
+    provenance = json.loads((game / 'provenance.json').read_text())
     managed = game / 'managed'; hot = game / 'DarkSun.HotUpdate.dll'
+    windows_manifest = (args.windows_native or game / 'windows-native.json').resolve()
+    windows = json.loads(windows_manifest.read_text())
+    if str(windows['steam_build_id']) != str(provenance['steam_build_id']):
+        raise ValueError('Windows native inputs belong to a different Steam build')
+    if windows['hot_update']['sha256'] != digest(hot):
+        raise ValueError('Windows HotUpdate differs from the selected combat and playback declarations')
     build = REPORT / '.build'; generated = REPORT / 'generated'; proof = REPORT / 'build-proof'
     for directory in (build, generated, proof, build / 'refs', build / 'candidate/plugins'):
         directory.mkdir(parents=True, exist_ok=True)
@@ -123,7 +140,8 @@ def main():
     run(['dotnet', csc, '@' + str(response)], proof / 'compile.log')
     # The original reference directory is intentionally used here: direct
     # private-field reads must resolve against the untouched native assembly.
-    run(['dotnet', tool, 'audit', candidate, proof / 'runtime-audit.json', game, managed, args.sdk / 'sdk/net40'], proof / 'runtime-audit.log')
+    run(['dotnet', tool, 'audit', candidate, proof / 'runtime-audit.json', game, managed,
+         args.sdk / 'sdk/net40', '--windows-native', windows_manifest], proof / 'runtime-audit.log')
     run(['dotnet', args.sdk / 'tools/yx-patch.dll', 'check', '--json', candidate], proof / 'sdk-check.json')
     checked = json.loads((proof / 'sdk-check.json').read_text())
     findings = [item for entry in checked['files'] for item in entry['findings']]
@@ -133,6 +151,10 @@ def main():
     shutil.copyfile(HERE / 'manifest.json', REPORT / 'mod/manifest.json')
     receipt = dict(scope='Offline standalone plugin build; no game installed or launched', dll=str(plugin),
                    sha256=digest(plugin), bytes=plugin.stat().st_size, native_hot_sha256=digest(hot),
+                   native_game_input=str(game), steam_build_id=provenance['steam_build_id'],
+                   native_provenance_sha256=digest(game / 'provenance.json'),
+                   windows_native_manifest_sha256=digest(windows_manifest),
+                   sdk_sha256={name:digest(args.sdk / 'sdk/net40' / name) for name in ('Yx.ModSdk.Core.dll', 'Yx.ModSdk.dll')},
                    authored_rigs_receipt_sha256=digest(proof / 'authored-rigs.json'),
                    source_sha256={str(path):digest(path) for path in sources},
                    sdk_errors=0, sdk_warnings=sum(item['level']=='warning' for item in findings))

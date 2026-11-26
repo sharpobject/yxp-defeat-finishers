@@ -149,17 +149,17 @@ namespace YxpFinisherCalc
             return ended;
         }
 
-        public Selection Finish(BattleResult result, BattleCharacter winner, BattleCharacter loser)
+        public Selection Finish(BattleResult result, BattleCharacter winner, BattleCharacter loser, int remainingDestiny)
         {
             if (candidate == null || candidate.Kind == 2 && !cardEndedBattle || candidate.WinnerUid != winner.battleTempData.uid ||
                 candidate.LoserUid != loser.battleTempData.uid || loser.battleTempData.hp > 0 ||
                 candidate.CardOrdinal != cardOrdinal || candidate.Turn != TurnCount)
                 return null;
-            // Both finishers require elimination from the match. publicData.life
-            // is post-battle Destiny; lastRoundData.life is pre-battle Destiny.
-            // Mirrors and survival talents that retain 1 Destiny do not qualify.
+            // Ordinary completed records supply post-battle Destiny. Recap and
+            // fresh practice use the native defeat calculation's remaining Destiny.
+            // Inner demons and survival talents retaining 1 do not qualify.
             var loserData = result.p1.publicData.uid == candidate.LoserUid ? result.p1.publicData : result.p2.publicData;
-            if (loserData.isMirror || loserData.lastRoundData.life <= 0 || loserData.life > 0)
+            if (loserData.isMirror || loserData.lastRoundData.life <= 0 || remainingDestiny > 0)
                 return null;
             return candidate;
         }
@@ -180,26 +180,45 @@ namespace YxpFinisherCalc
             if (context == null || battle == null || battle.p1 == null || battle.p2 == null ||
                 battle.p1.publicData == null || battle.p2.publicData == null ||
                 battle.p1.privateData == null || battle.p2.privateData == null ||
-                battle.p1.publicData.lastRoundData == null || battle.p2.publicData.lastRoundData == null ||
-                string.IsNullOrEmpty(battle.winerId))
+                battle.p1.publicData.lastRoundData == null || battle.p2.publicData.lastRoundData == null)
                 return null;
+            // The practice editor supplies starting players and a random stream,
+            // with no completed result. The live manager and the input must both
+            // identify practice; incomplete recorded battles keep being rejected.
+            bool freshPractice = context.gameMode == GameMode.PracticeMode &&
+                battle.gameMode == GameMode.PracticeMode && string.IsNullOrEmpty(battle.winerId) &&
+                battle.huiHeCount == 0 && battle.hpDelta == 0;
+            if (!freshPractice && string.IsNullOrEmpty(battle.winerId)) return null;
             var executor = new BattleExecuter { context = context };
             var inputs = InputCopy.Copy(battle);
             executor.Execute(inputs, visible: false);
             var left = executor.leftCharacter;
             var right = executor.rightCharacter;
-            if (left.battleTempData == null || right.battleTempData == null || executor.isExecuting ||
-                executor.battleParamsQueue.Count != 0 || executor.selection.TurnCount != battle.huiHeCount)
+            if (left.battleTempData == null || right.battleTempData == null || executor.isExecuting)
                 return null;
             int delta = left.battleTempData.hp - right.battleTempData.hp;
             var winner = delta > 0 ? left : delta < 0 ? right :
                 left.battleTempData.uid == battle.firstPlayerId ? left : right;
             var loser = winner == left ? right : left;
-            // Match the game's own result comparison, which compares absolute
-            // HP separation because presentation can swap the two sides.
-            if (winner.battleTempData.uid != battle.winerId || Math.Abs(delta) != Math.Abs(battle.hpDelta))
-                return null;
-            return executor.selection.Finish(battle, winner, loser);
+            if (!freshPractice)
+            {
+                // Completed records must agree on turn, consumed random choices,
+                // winner and absolute HP separation (presentation can swap sides).
+                if (executor.battleParamsQueue.Count != 0 || executor.selection.TurnCount != battle.huiHeCount ||
+                    winner.battleTempData.uid != battle.winerId || Math.Abs(delta) != Math.Abs(battle.hpDelta))
+                    return null;
+            }
+            // Fresh practice preallocates random choices; only that unfinished
+            // shape permits an unused suffix. Recap supplies a completed result
+            // but retains starting Destiny in publicData.life. Its displayed
+            // defeat uses these native operations, including survival effects.
+            int remainingDestiny = loser.battleTempData.playerData.publicData.life;
+            if (freshPractice || context.gameMode == GameMode.ReviewMode)
+            {
+                loser.ShowDeathDamage(executor.CalLifeDamage(winner, loser));
+                remainingDestiny = loser.characterUI.tempLife;
+            }
+            return executor.selection.Finish(battle, winner, loser, remainingDestiny);
         }
     }
 
