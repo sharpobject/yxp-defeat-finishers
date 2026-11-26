@@ -36,7 +36,7 @@ python3 source/build.py --workspace "$YXP_WORKSPACE" --sdk "$YXP_SDK" \
   --bundles "$YXP_FINISHER_BUNDLES"
 ```
 
-默认输入由工作区 `targets.json` 的 `retail` 项选择，构建会通过 `target_config.py` 校验原始输入及 HotUpdate 摘要。先用工作区维护的提取流程准备当前游戏，再运行此命令。v0.1.2 候选版本针对 Steam build `26939223`。最终 DLL 已通过 Windows 原生 API 静态检查，当前版本的实际运行验证见下文。
+默认输入由工作区 `targets.json` 的 `retail` 项选择，构建会通过 `target_config.py` 校验原始输入及 HotUpdate 摘要。先用工作区维护的提取流程准备当前游戏，再运行此命令。v0.1.3 针对 Steam build `26939223`；发布前必须为最终 DLL 保留本次静态检查和相应客户端的验证结果。
 
 `YXP_SDK` 指向官方 SDK 仓库根目录，需含 `sdk/net40` 和 `tools/yx-patch.dll`。`YXP_FINISHER_BUNDLES` 指向与输入 catalog 匹配的完整原生 AssetBundle 目录；构建只读该目录，检查当前配置的全部九种外观与 Spine 字节摘要。仅有 HotUpdate/config 的精简提取目录不够。可用 `--game-input` 指定具有上述完整文件布局的另一个已提取游戏输入目录；不同游戏版本需要重新生成计算器并验证布局和动作绑定。
 
@@ -65,17 +65,15 @@ python3 source/build.py --workspace "$YXP_WORKSPACE" --sdk "$YXP_SDK" \
 
 `build-proof/runtime-audit.json` 中的 `windows_native.pass` 必须为 `true`，缺失声明、原生方法或泛型实例均为构建错误。这项静态检查负责 API 覆盖；画面、声音、演出时机与游戏行为仍需在相应客户端中验证。
 
-## v0.1.2 的实现与验证
+## 当前实现与验证边界
 
-当前 DLL SHA-256 为 `30b06f86a170224ec83a0e971081b307f1ca950608dc45666a2f4a3aa8a02912`，大小 5,804,544 字节。正常构建的 Windows 静态检查已通过，错误数为零，覆盖 182 个普通原生方法、101 个具体泛型方法和 5 个经证明可共享引用类型代码的方法。类型／字段检查覆盖 124 个声明、34 个具体泛型类型、4 个共享引用类型和 1 个由原生签名证明的类型。接口／抽象方法的虚调用检查其保留的分派声明，不声称静态证明每个运行时实现或游戏行为。
+v0.1.3 更新屠馗滑行护架、林小月时停和飞刀动作，以及原生结束手型；没有改变触发规则、伤害时间点或声音时间线。游戏原有的骨骼、贴图和服装映射仍是人物动作的数据来源。
 
-相同检查器正确拒绝旧版缺失的 `UniTaskCompletionSource<int>` 类型及方法和 Spine 设置方法；过期输入摘要和错误重载的对照输入也被拒绝。验证不需要执行对应游戏路径。构建同时完成九种外观绑定检查、直接引用检查、运行时反射禁用检查和官方 SDK checker。
+Windows 原生 API 检查必须针对最终发布 DLL 重新运行。它检查方法、字段、类型和具体泛型实例，接口／抽象方法的虚调用只证明保留的分派声明，不声称静态证明每个运行时实现或画面表现。官方 SDK checker、直接引用检查、运行时反射禁用检查和全部九种外观绑定检查仍是正常构建的一部分。
 
-Recap 的已结算输入可能携带战前命元。计算器先校验胜者、回合数、血量差和随机数消耗，再调用原生命元扣除逻辑取得最终命元。播放保留 `CardActionBase.Execute` 的原生结果任务，只在其非泛型 `ExecuteEffect` 前等待演出；无需构造 Windows 没有 AOT 代码的额外泛型 completion source。屠馗的 156 次冗余 IK 写入被删除，四次必要膝部变化使用已保留的原生 `IkConstraintTimeline`；20 个姿势的骨骼和世界网格前后完全一致。
+Recap 的已结算输入可能携带战前命元。计算器校验原始战斗结果后，调用原生命元扣除逻辑取得最终命元。播放保留 `CardActionBase.Execute` 的原生结果任务，只在其非泛型 `ExecuteEffect` 前等待演出；无需构造 Windows 没有 AOT 代码的额外泛型 completion source。屠馗必要的膝部变化使用已保留的原生 `IkConstraintTimeline`。
 
-同一 DLL 已在实际 Windows IL2CPP 客户端（macOS 上的 Whisky Wine）通过屠馗回放、林小月回放和原始内置 Recap 战斗／上下文输入。演出时钟分别达到完整的 6.8、11.1 和 11.1 秒；原生 HP／命元结果、结束保持、重播清理和状态栏恢复全部通过。三次测试进程正常退出并保留正在运行的游戏。测试使用官方 Windows 加载器 v1.0.1 附带的 SDK DLL，插件及 SDK 字节保持不变，Recap 输入没有转换成普通战绩回放。
-
-两套回放均取得 Windows 画面；Recap 运行记录功能状态。本次没有新增声音录制或听音验证。静态 API 检查、实际原生执行和画面结果分别记录，不用其中一项替代另一项。
+当前 0.1.3 的最终 DLL 摘要与验证结果见 README。最终 Windows 静态检查通过（零错误），匹配 181 个普通原生方法、101 个具体泛型方法和 5 个已证明可共享引用类型代码的方法。官方 SDK checker 报告 0 个错误、932 个警告。相同动作源码在原生 Mac 整合客户端完成五种身体模型的实际回放；四种换色另有原生 Spine 样张检查。v0.1.2 的 Windows 三项实际运行证据保持归属于旧 DLL，不能作为新版本的 Windows 画面或声音验证。原生回放检查应同时查看原生伤害／命元、结束保持、重播清理和状态栏恢复，并确认每个测试进程已退出。
 
 ## 打包
 

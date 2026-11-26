@@ -152,6 +152,7 @@ internal static partial class DefeatFinisherVisualsPayload
         internal Bone rightHand, leftHand;
         internal Slot rightHandSlot, leftHandSlot;
         internal Attachment openRightHand, openLeftHand, closedRightHand, closedLeftHand;
+        internal Attachment curledRightHand, curledLeftHand, curledRightUnderHand, curledLeftUnderHand;
         internal Attachment[] profileParts, archParts;
         internal Spine.Animation[] linMotion;
         internal Spine.Animation sideView;
@@ -211,6 +212,19 @@ internal static partial class DefeatFinisherVisualsPayload
             Pose(skin == 2 ? 20 : 21, skin == 2 ? 0.5f : 0.6f);
             openRightHand = rightHandSlot.Attachment; openLeftHand = leftHandSlot.Attachment;
             if (skin == 1) { Pose(38, 0f); openLeftHand = leftHandSlot.Attachment; }
+            // Original native grip layers for Base/Snow; original curled paws for Hood.
+            Pose(skin == 2 ? 5 : 1, 0.4f);
+            curledRightHand = rightHandSlot.Attachment; curledLeftHand = leftHandSlot.Attachment;
+            if (skin == 0)
+            {
+                curledRightUnderHand = skeleton.Slots.Items[3].Attachment;
+                curledLeftUnderHand = skeleton.Slots.Items[4].Attachment;
+            }
+            else if (skin == 1)
+            {
+                curledRightUnderHand = skeleton.Slots.Items[28].Attachment;
+                curledLeftUnderHand = skeleton.Slots.Items[4].Attachment;
+            }
             PoseAnimation(sideView, 0.04f);
             archParts = LinAuthoredPoses.CaptureArch(skeleton, skin);
             // The native zero frame supplies the three-quarter head. Keep its
@@ -253,14 +267,29 @@ internal static partial class DefeatFinisherVisualsPayload
             if (arch) LinAuthoredPoses.ApplyArch(skeleton, actor.skinNumber, archParts);
             OpenHands();
             if (!open) { rightHandSlot.Attachment = closedRightHand; leftHandSlot.Attachment = closedLeftHand; }
+            if (index == 8 || (index == 7 && progress >= 0.4f))
+            {
+                rightHandSlot.Attachment = curledRightHand;
+                leftHandSlot.Attachment = curledLeftHand;
+                if (actor.skinNumber == 0)
+                {
+                    skeleton.Slots.Items[3].Attachment = curledRightUnderHand;
+                    skeleton.Slots.Items[4].Attachment = curledLeftUnderHand;
+                }
+                else if (actor.skinNumber == 1)
+                {
+                    skeleton.Slots.Items[28].Attachment = curledRightUnderHand;
+                    skeleton.Slots.Items[4].Attachment = curledLeftUnderHand;
+                }
+            }
             LinAuthoredPoses.ApplyOrder(skeleton, actor.skinNumber, actor.skinColor, arch);
         }
         internal void PoseStop(float time)
         {
-            if (time < 0.3f) LinClip(1, time / 0.3f, true);
+            if (time < 0.3f) LinClip(1, time / 0.3f, false);
             else if (time < LinKnifeReadyOne - 0.22f)
-                LinClip(9, (time - 0.3f) / (LinKnifeReadyOne - 0.52f), true);
-            else LinClip(2, (time - LinKnifeReadyOne + 0.22f) / 0.22f, true);
+                LinClip(9, (time - 0.3f) / (LinKnifeReadyOne - 0.52f), false);
+            else LinClip(2, (time - LinKnifeReadyOne + 0.22f) / 0.22f, false);
         }
         internal void PoseKnives(float phase, bool second)
         {

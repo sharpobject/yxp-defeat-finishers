@@ -2,7 +2,7 @@
 
 弈仙牌双角色淘汰演出 MOD，使用 [Airexplosion 的 MOD SDK](https://github.com/Airexplosion/yixianpai-mod-sdk)。屠馗完成《Street Fighter III: 3rd Strike》风格的瞬狱杀；林小月完成时停、飞刀与压路机演出。
 
-v0.1.2 适配 Steam build `26939223`，修复内置复盘（Recap）的淘汰判断、Windows 出牌停顿和屠馗演出启动失败。
+v0.1.3 针对 Steam build `26939223`，改进屠馗滑行护架、林小月时停与飞刀动作，以及结束姿势的原生手型。
 
 ## 触发条件
 
@@ -15,12 +15,12 @@ v0.1.2 适配 Steam build `26939223`，修复内置复盘（Recap）的淘汰判
 
 支持屠馗两套服装及其换色、林小月三套服装及其换色，共九种外观。人物与表情仅使用游戏自带贴图；林小月没有另绘喊叫面部。音量跟随游戏音效设置。新增外观需要另行检查骨骼与动作映射。
 
-## v0.1.2 更新
+## v0.1.3 更新
 
-- 根据当前游戏原始程序集重新生成战斗计算器。已结算 Recap 输入可能保留战前命元，MOD 校验记录的战斗结果后，使用游戏原生扣除规则判断最终命元。
-- 保留游戏原本的出牌结果任务，只在效果执行前等待演出时间点，消除 Windows 缺失泛型 AOT 代码造成的第一张牌停顿。原生伤害、出牌结果与被动效果顺序保持不变。
-- 屠馗膝部调整使用 Windows 已保留的原生时间线，避免调用被裁剪的 Spine 设置方法。20 个姿势的骨骼与世界网格对照完全一致；动作、表情和声音沿用 v0.1.1。
-- 构建与打包必须通过同版本 Windows 原生 API 静态检查。缺失方法、字段、类型或泛型实例会在执行演出前被发现；游戏更新后必须准备匹配的检查输入。
+- 屠馗滑行时使用各服装原有的闭合拳头与对应前臂，降低高举的护架，让拳头和肘部轮廓更清楚；已经修好的腿、靴子和护膝保持不变。
+- 林小月时停和准备动作收紧肘部并握拳。飞刀出手后更早进入后仰姿势，并稍延长该姿势的停留，让甩臂轮廓更容易看清。
+- 林小月结束姿势使用原生弯曲手指／猫爪及其配套手掌层，不新增人物或表情贴图。
+- 保留 v0.1.2 的 Windows、内置 Recap 和练习输入修复，以及构建时的同版本 Windows 原生 API 检查。触发条件、伤害时间点和声音时间线不变。
 
 ## 安装
 
@@ -32,15 +32,11 @@ v0.1.2 适配 Steam build `26939223`，修复内置复盘（Recap）的淘汰判
 
 ## 验证
 
-当前插件 SHA-256：`30b06f86a170224ec83a0e971081b307f1ca950608dc45666a2f4a3aa8a02912`。静态检查通过，错误数为零；检查器也正确拒绝旧版两个实际缺失的原生 API、过期输入摘要和错误重载。全部九种外观绑定、最终直接引用、运行时反射禁用规则和官方 SDK checker 均已通过。
+当前 0.1.3 插件 SHA-256：`71f911d6cfb7cf0b4737b5b7527b0cac32187c3b7f50b46f3dcbfe323ab33428`（5,526,016 字节）。最终 DLL 通过当前 Windows 原生 API、直接引用及运行时反射禁用检查；Windows 静态检查错误数为零。官方 SDK checker 报告 0 个错误、932 个警告。
 
-同一 DLL 使用官方 Windows 加载器 v1.0.1 附带的原始 SDK，在实际 Windows IL2CPP 客户端（macOS 上的 Whisky Wine）通过三项检查：
+相同动作源码已在原生 Mac 整合客户端完成五次实际回放，覆盖林小月三种和屠馗两种身体模型。完整演出、伤害／命元、结束保持、重播清理和状态栏恢复通过，五个测试进程均正常退出。其余四种换色经过本次原生 Spine 样张与几何检查，不计为额外游戏运行。
 
-- 屠馗回放：完整 6.8 秒演出与原生伤害／命元结算。
-- 林小月回放：完整 11.1 秒演出；飞刀阶段清除护体并造成伤害，压路机阶段完成致命伤害。
-- 原始内置 Recap 战斗及上下文：完整 11.1 秒演出与正确淘汰结果，输入未转换为战绩回放。
-
-三次运行均通过结束保持、重播清理和状态栏恢复；测试进程正常退出，并保留正在运行的游戏。两套回放均已取得 Windows 画面；本次未新增声音录制或听音验证。
+本次没有执行新 DLL 的 Windows 播放测试，也没有新增实际声音录制。旧版 Windows 实际运行记录仍归属于 0.1.2；静态 API 检查不代替画面或声音验收。
 
 ## 开发与素材
 
@@ -52,8 +48,8 @@ Two elimination cinematics for Airexplosion's Yi Xian Pai mod loader. Tu Kui per
 
 Tu Kui must actually play Realm-Killing Palms or Carefree Shadowless Fist during the eliminating turn. Lin Xiaoyue needs an earlier completed card activation in the same turn to make at least two attacks **and** clear Guard Up, followed by Dharma Spirit Sword's direct killing attack. The defeated opponent must not be an inner demon and must lose their remaining Destiny. Extra Cat Shadow attacks count. Both characters use only the game's original costume and facial textures.
 
-Version 0.1.2 targets Steam build `26939223`. It fixes built-in Recap elimination detection, keeps the native card-result task to avoid a missing Windows AOT specialization, and uses a preserved native IK timeline for Tu Kui without changing any of the 20 poses. Builds and packaging require a static API audit against the matching Windows player; the final DLL passes, and the checker rejects both known-broken versions plus stale-input and wrong-overload controls.
+Version 0.1.3 targets Steam build `26939223`. Tu Kui's glide uses a clearer closed-fist guard with matching original forearm views; his repaired legs, boots and kneepads are retained. Lin Xiaoyue bends her arms and closes her hands during time stop, reaches a stronger backward knife follow-through earlier, holds it longer, and uses original curled hands or paws for her ending pose. Trigger rules, damage cues and audio timing remain unchanged.
 
-The exact DLL above passed Tu Kui’s 6.8-second replay, Lin’s 11.1-second replay, and an unchanged built-in Recap battle/context in the actual Windows IL2CPP player under Whisky Wine, using the SDK DLLs bundled with the official Windows loader v1.0.1. Native damage/Destiny results, held endings, replay cleanup and status-bar restoration passed; all private test processes exited normally and active play was preserved. Both replay runs captured Windows frames. Audio was not newly recorded or reviewed.
+The release retains the Windows, Recap and practice-input fixes and mandatory same-version Windows native API audit. The final DLL above passes the Windows native API, direct-reference and no-runtime-reflection checks. The official SDK checker reports 0 errors and 932 warnings. The shared pose sources were reviewed in five actual integrated Mac replay runs covering all five body models, with full movies, damage/Destiny, held endings and replay cleanup; all test processes exited normally. The four recolors have fresh offline native Spine review. This new DLL has not been playback-tested on Windows, and audible output was not newly captured; previous Windows evidence remains attached to v0.1.2.
 
 Import the release ZIP through the mod manager, enable it, then restart after finishing any active game. Do not enable it alongside an integrated mod that already contains these finishers.
