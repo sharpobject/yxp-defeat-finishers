@@ -2,7 +2,7 @@
 
 弈仙牌双角色淘汰演出 MOD，使用 [Airexplosion 的 MOD SDK](https://github.com/Airexplosion/yixianpai-mod-sdk)。只包含屠馗和林小月的两套演出。
 
-独立加载器版本已完成 Mac 原生回放验证。Windows IL2CPP 运行尚未验证。
+v0.1.1 增加未结算练习对局的支持，并更新两位角色的动作。独立加载器版本已完成 Mac 原生回放验证。Windows IL2CPP 运行尚未验证。
 
 ## 触发条件
 
@@ -11,7 +11,15 @@
 
 两套演出替换符合条件的整个回合动画，保留原战场、左右站位、原生伤害计算和伤害飘字。林小月先前的攻击对应飞刀命中，万法归灵剑对应压路机落地。结束姿势保持到离开、跳过或重新播放该场战斗；林小月脚下的压路机也会保留。
 
+练习对局也必须满足上述出牌与淘汰条件。对于尚无胜负结果的练习输入，MOD 使用原生战斗和命元扣除规则计算是否淘汰；对手仍有命元或属于心魔时不会触发。普通战绩回放仍须与记录的胜者、回合数、血量差及随机数消耗一致。
+
 支持当前已适配的屠馗两套服装及其换色、林小月三套服装及其换色，共九种外观。音量跟随游戏音效设置。新版本新增的外观需要重新检查骨骼与动作映射。
+
+## v0.1.1 动作更新
+
+- 屠馗的冲刺、抓取与背身结束动作重新编排；抓取手臂与手腕使用匹配的原生贴图，结束姿势保留完整的脚踝和靴子形状。
+- 林小月在落地击打后先起身，再挺胸后仰、向后拉开双肘；双脚保持踩住压路机，长袖下垂，结束姿势持续呼吸起伏。
+- 两位角色的服装与表情均使用游戏自带贴图。林小月保留原生侧脸表情，没有另绘喊叫面部。
 
 ## 安装
 
@@ -27,9 +35,10 @@
 
 ## 验证与已知差异
 
-- 原始客户端热更程序集、官方 SDK 与独立插件 DLL 已在 Mac 原生客户端中完成两套演出的完整回放检查，包括原场景、实际伤害与护体变化、结束姿势和重播清理。
-- 构建检查当前全部九种服装／换色的骨骼资源；离线计算器的 49 项检查通过。插件通过最终直接引用／无运行时反射检查及官方 SDK checker。
-- 林小月的致命伤害仍发生在压路机阶段。与此前直接注入客户端的版本相比，实测该次伤害晚约 143 毫秒；保留原生出牌顺序，避免让出牌前的被动伤害提前发生。
+- 原始客户端热更程序集、官方 SDK 与独立插件 DLL 已在 Mac 原生客户端中完成屠馗和林小月的完整回放检查，包括原场景、实际伤害、结束姿势和重播清理。同一 DLL 还通过了林小月的合成练习输入检查：从已保存战斗构造未结算练习对局，执行原生战斗；这项检查不包含练习场 MOD 的完整界面流程。
+- 上述测试使用的插件 DLL SHA-256 为 `c9143dcf7d160ba95d55abc04f7440a6484f6cfda26bd83611ef5888f9e2238b`。
+- 构建检查当前全部九种服装／换色的骨骼资源；整合版与独立版离线计算器各通过 70/70 项检查，包括练习输入、非淘汰情形及输入数据不变性。插件通过最终直接引用／无运行时反射检查及官方 SDK checker。
+- 林小月的致命伤害仍发生在压路机阶段，保留原生出牌和被动效果顺序。
 - 以上原生运行证据来自 Mac Mono/ILRuntime，尚未完成 Windows IL2CPP 测试。
 
 ## 开发与素材
@@ -42,4 +51,8 @@ Two elimination cinematics for Airexplosion's Yi Xian Pai mod loader: Tu Kui per
 
 Tu Kui must actually play Realm-Killing Palms or Carefree Shadowless Fist during the eliminating turn. Lin Xiaoyue requires an earlier completed card activation in the same turn to make at least two attacks **and** clear Guard Up, followed by Dharma Spirit Sword's direct killing attack and match elimination. Both retain the actual stage, equipped supported costume/recolor and native damage text.
 
-Import the release ZIP through the mod manager, enable it, then restart after finishing any active game. Both standalone cinematics passed full native Mac replay checks. Windows IL2CPP remains untested. Lin's lethal hit remains within the roller phase, approximately 143 ms later than the earlier injected implementation, preserving native card/passive ordering.
+Version 0.1.1 also accepts unfinished practice battles, using native combat and Destiny-loss rules to determine elimination. Inner demons and opponents with remaining Destiny do not qualify. Completed replay records retain their winner, turn-count, HP-difference and random-consumption checks.
+
+Tu Kui has revised charge, grip and rear poses with matching native arm/hand views and intact boot shapes. Lin Xiaoyue rises into a backward chest arch with elbows drawn behind her, feet planted on the roller, hanging sleeves and a breathing hold. Both characters use only the game's own costume and facial textures; Lin retains her original restrained profile expression.
+
+Import the release ZIP through the mod manager, enable it, then restart after finishing any active game. The exact DLL identified above passed native Mac replays for both cinematics and a synthetic practice battle for Lin using the real SDK. Both calculator variants passed 70/70 checks. Windows IL2CPP remains untested. Lin's lethal hit stays within the roller phase with native card/passive ordering preserved.

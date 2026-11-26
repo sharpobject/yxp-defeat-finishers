@@ -152,7 +152,7 @@ internal static partial class DefeatFinisherVisualsPayload
         internal Bone rightHand, leftHand;
         internal Slot rightHandSlot, leftHandSlot;
         internal Attachment openRightHand, openLeftHand, closedRightHand, closedLeftHand;
-        internal Attachment[] profileParts;
+        internal Attachment[] profileParts, archParts;
         internal Spine.Animation[] linMotion;
         internal Spine.Animation sideView;
         internal Vector3 originalLocalPosition;
@@ -212,6 +212,10 @@ internal static partial class DefeatFinisherVisualsPayload
             openRightHand = rightHandSlot.Attachment; openLeftHand = leftHandSlot.Attachment;
             if (skin == 1) { Pose(38, 0f); openLeftHand = leftHandSlot.Attachment; }
             PoseAnimation(sideView, 0.04f);
+            archParts = LinAuthoredPoses.CaptureArch(skeleton, skin);
+            // The native zero frame supplies the three-quarter head. Keep its
+            // attachments paired with the same local transforms baked offline.
+            PoseAnimation(sideView, 0f);
             profileParts = LinAuthoredPoses.CaptureProfile(skeleton, skin);
             linMotion = LinAuthoredPoses.Create(skin);
         }
@@ -239,43 +243,44 @@ internal static partial class DefeatFinisherVisualsPayload
                 for (int i = 51; i <= 57; i++) skeleton.Slots.Items[i].Attachment = null;
             }
         }
-        private void LinClip(int index, float progress, bool open, bool upperArms)
+        private void LinClip(int index, float progress, bool open)
         {
             PoseAnimation(sideView, 0f);
             linMotion[0].Apply(skeleton, -1f, 0f, false, null, 1f, MixBlend.Replace, MixDirection.In);
             linMotion[index].Apply(skeleton, -1f, Mathf.Clamp01(progress), false, null, 1f, MixBlend.Replace, MixDirection.In);
             LinAuthoredPoses.ApplyProfile(skeleton, actor.skinNumber, profileParts);
+            bool arch = index == 8 || (index == 7 && progress >= 0.5f);
+            if (arch) LinAuthoredPoses.ApplyArch(skeleton, actor.skinNumber, archParts);
             OpenHands();
             if (!open) { rightHandSlot.Attachment = closedRightHand; leftHandSlot.Attachment = closedLeftHand; }
-            LinAuthoredPoses.ApplyOrder(skeleton, actor.skinNumber, actor.skinColor, upperArms);
+            LinAuthoredPoses.ApplyOrder(skeleton, actor.skinNumber, actor.skinColor, arch);
         }
         internal void PoseStop(float time)
         {
-            if (time < 0.3f) LinClip(1, time / 0.3f, true, true);
+            if (time < 0.3f) LinClip(1, time / 0.3f, true);
             else if (time < LinKnifeReadyOne - 0.22f)
-                LinClip(9, (time - 0.3f) / (LinKnifeReadyOne - 0.52f), true, true);
-            else LinClip(2, (time - LinKnifeReadyOne + 0.22f) / 0.22f, true, true);
-            if (time < LinKnifeReadyOne - 0.11f)
-                LinAuthoredPoses.ApplyStopOrder(skeleton, actor.skinNumber, actor.skinColor);
+                LinClip(9, (time - 0.3f) / (LinKnifeReadyOne - 0.52f), true);
+            else LinClip(2, (time - LinKnifeReadyOne + 0.22f) / 0.22f, true);
         }
         internal void PoseKnives(float phase, bool second)
         {
-            if (phase < 0.56f || !second) LinClip(3, phase / 0.56f, true, true);
+            if (phase < 0.56f || !second)
+                LinClip(3, phase / 0.56f, phase >= LinFirstKnives - LinKnifeReadyOne);
             else
             {
                 float pulse = 2f * (phase - 0.56f) / (LinJumpStart - LinKnifeReadyTwo - 0.56f);
-                LinClip(10, pulse - Mathf.Floor(pulse), true, true);
+                LinClip(10, pulse - Mathf.Floor(pulse), true);
             }
         }
-        internal void PoseJump(float progress) { LinClip(4, progress, false, true); }
+        internal void PoseJump(float progress) { LinClip(4, progress, false); }
         internal void PoseRoller(float impactTime)
         {
-            if (impactTime < 0f) LinClip(4, 1f, false, true);
-            else if (impactTime < 0.08f) LinClip(5, impactTime / 0.08f, false, true);
-            else LinClip(6, (impactTime - 0.08f) / (LinTriumphStart - LinRollerHit - 0.24f), false, true);
+            if (impactTime < 0f)
+                LinClip(5, (impactTime + LinRollerHit - LinDropStart) / (LinRollerHit - LinDropStart), false);
+            else LinClip(6, impactTime / (LinTriumphStart - LinRollerHit - 0.16f), false);
         }
-        internal void PoseTriumph(float progress) { LinClip(7, progress, progress >= 0.4f, false); }
-        internal void PoseBreathing(float phase) { LinClip(8, phase, true, false); }
+        internal void PoseTriumph(float progress) { LinClip(7, progress, progress >= 0.4f); }
+        internal void PoseBreathing(float phase) { LinClip(8, phase, true); }
         internal void Pose(int clip, float time)
         {
             PoseAnimation(skeleton.Data.Animations.Items[clip], time);
@@ -566,12 +571,16 @@ internal static partial class DefeatFinisherVisualsPayload
             portrait.gameObject.SetActive(false);
             if (kind == 1)
             {
+                // The grip must stay visible over the opponent at contact.
+                // Keep stage effects at their existing depth and restore the
+                // borrowed renderer's order when this battle leaves the screen.
+                actorRenderer.sortingOrder = Mathf.Max(sortingOrder, targetRenderer.sortingOrder) + 1;
                 CreateTuArcadeEffects();
                 duckTexture = Texture("duck-calligraphy.png", false);
                 duckSprite = Sprite.Create(duckTexture, new Rect(0f, 0f, duckTexture.width, duckTexture.height),
                     new Vector2(0.5f, 0.5f), 100f);
                 duck = Picture("BackgroundDuck", duckSprite, sortingOrder - 1);
-                backDuck = Picture("BackDuck", duckSprite, sortingOrder + 1);
+                backDuck = Picture("BackDuck", duckSprite, actorRenderer.sortingOrder + 1);
                 duck.gameObject.SetActive(false); backDuck.gameObject.SetActive(false);
                 flameTexture = Texture("tu-third-strike-flame.png", true);
                 flameSprites = new Sprite[30];
@@ -667,18 +676,21 @@ internal static partial class DefeatFinisherVisualsPayload
             {
                 float glide = Mathf.Clamp01((time - 0.75f) / 0.6f);
                 attacker.position = Vector3.Lerp(start, contact, glide);
-                attacker.PoseDemon(0);
-                attacker.skeleton.R = 0.65f; attacker.skeleton.G = 0.28f;
+                attacker.PoseDemon(time < 1.35f ? 0 : time < 1.39f ? 5 : 6);
+                if (time < 1.39f)
+                { attacker.skeleton.R = 0.65f; attacker.skeleton.G = 0.28f; }
             }
             else if (time < 2.8f)
             {
                 attacker.position = contact;
-                attacker.PoseDemon(0);
+                attacker.PoseDemon(6);
             }
             else
             {
                 attacker.position = contact;
-                attacker.PoseDemon(Mathf.Min(3, (int)((time - 2.8f) / 0.04f)));
+                // The turn happens during the blackout. Third Strike reveals
+                // the planted rear stance, never the airborne approach pose.
+                attacker.PoseDemon(3);
                 flame.gameObject.SetActive(time < 4.8f);
                 if (time < 4.8f)
                 {
@@ -696,7 +708,7 @@ internal static partial class DefeatFinisherVisualsPayload
                 }
             }
             attacker.Draw();
-            trail.Update(Time.realtimeSinceStartup, time >= 0.75f && time < 1.7f);
+            trail.Update(Time.realtimeSinceStartup, time >= 0.75f && time < 1.35f);
             SetDemonDark(time >= 1.7f && time < 2.8f);
             if (demonDark) trail.Hide();
             DrawTuActivation(time);
@@ -750,7 +762,10 @@ internal static partial class DefeatFinisherVisualsPayload
             {
                 float jump = Mathf.Clamp01((time - LinJumpStart) / 0.2f);
                 float height = camera.orthographic ? camera.orthographicSize * 2.4f : attacker.unit * 14f;
-                attacker.position = Vector3.Lerp(start, victim, jump) + Vector3.up * (jump * jump * height);
+                // Compress on the stage first, then rise vertically. The rider
+                // reappears over the target only after leaving the camera view.
+                float launch = Mathf.Clamp01((jump - 0.25f) / 0.75f);
+                attacker.position = start + Vector3.up * (launch * launch * height);
                 attacker.PoseJump(jump);
             }
             else if (time < LinTriumphStart - 0.16f)
@@ -760,7 +775,7 @@ internal static partial class DefeatFinisherVisualsPayload
                 float above = camera.orthographic ? camera.orthographicSize * 2.4f : attacker.unit * 14f;
                 float drop = (1f - fall * fall) * above;
                 roller.transform.position = victim + Vector3.up * drop;
-                attacker.position = RollerTop() + Vector3.up * (0.08f * attacker.unit);
+                attacker.position = RollerRiderPosition();
                 attacker.PoseRoller(time - LinRollerHit);
                 if (fall >= 1f && !rollerShook)
                 {
@@ -772,8 +787,10 @@ internal static partial class DefeatFinisherVisualsPayload
             {
                 roller.gameObject.SetActive(true);
                 roller.transform.position = victim;
-                attacker.position = RollerTop() + Vector3.up * (0.08f * attacker.unit);
-                attacker.PoseTriumph((time - LinTriumphStart + 0.16f) / 0.16f);
+                attacker.position = RollerRiderPosition();
+                if (time < LinTriumphStart)
+                    attacker.PoseTriumph((time - LinTriumphStart + 0.16f) / 0.16f);
+                else attacker.PoseBreathing(((time - LinTriumphStart) % 0.9f) / 0.9f);
             }
             attacker.Draw();
             trail.Update(Time.realtimeSinceStartup, knifePhase >= 0.23f && knifePhase < 0.58f);
@@ -822,9 +839,13 @@ internal static partial class DefeatFinisherVisualsPayload
                 (0.08f + Mathf.Sin(Mathf.Min(1f, p * 1.3f) * Mathf.PI) * 1.35f) * scale, 1f);
             superFlash.color = new Color(1f, 1f, 1f, Mathf.Clamp01((1f - p) * 2.5f));
         }
-        private Vector3 RollerTop()
+        private Vector3 RollerRiderPosition()
         {
-            return roller.transform.position + Vector3.up * (rollerHeight * (1f - 13f / 160f)) +
+            // Native shoe soles sit at different heights relative to each rig's
+            // root. Place the rider on the roof without changing leg geometry.
+            float soleOffset = attacker.actor.skinNumber == 0 ? -0.13f :
+                attacker.actor.skinNumber == 1 ? -0.16f : 0.08f;
+            return roller.transform.position + Vector3.up * (rollerHeight * (1f - 13f / 160f) + soleOffset * attacker.unit) +
                 Vector3.right * (direction * (153f / 331f - 0.5f) * rollerWidth);
         }
         private Vector3 HandPoint(bool right)
@@ -886,7 +907,7 @@ internal static partial class DefeatFinisherVisualsPayload
                 attacker.skeleton.Bones.Items[3].X += 0.018f * breath;
                 attacker.skeleton.Bones.Items[3].Rotation += 0.35f * breath;
             }
-            else attacker.PoseBreathing((elapsed % 0.9f) / 0.9f);
+            else attacker.PoseBreathing(((LinDuration - LinTriumphStart + elapsed) % 0.9f) / 0.9f);
             attacker.Draw();
             if (kind == 1 && backDuck.gameObject.activeSelf)
             {
@@ -925,6 +946,7 @@ internal static partial class DefeatFinisherVisualsPayload
                 if (targetRenderer != null) targetRenderer.enabled = targetRendererEnabled;
                 demonDark = false;
             }
+            if (actorRenderer != null) actorRenderer.sortingOrder = sortingOrder;
             if (sound != null) sound.Stop();
             if (targetFrozen && target != null && target.skeletonAnimation != null)
                 target.skeletonAnimation.timeScale = targetTimeScale;
