@@ -2,7 +2,7 @@
 
 弈仙牌双角色淘汰演出 MOD，使用 [Airexplosion 的 MOD SDK](https://github.com/Airexplosion/yixianpai-mod-sdk)。屠馗完成《Street Fighter III: 3rd Strike》风格的瞬狱杀；林小月完成时停、飞刀与压路机演出。
 
-v0.1.2 适配 Steam build `26939223`，修复内置复盘（Recap）的淘汰判断、Windows 出牌停顿和屠馗演出启动失败。
+v0.1.4 针对 Steam build `26965567`，修复屠馗火焰中残留的人形与脚部空洞，并更新屠馗和林小月的声音混音。
 
 ## 触发条件
 
@@ -15,12 +15,11 @@ v0.1.2 适配 Steam build `26939223`，修复内置复盘（Recap）的淘汰判
 
 支持屠馗两套服装及其换色、林小月三套服装及其换色，共九种外观。人物与表情仅使用游戏自带贴图；林小月没有另绘喊叫面部。音量跟随游戏音效设置。新增外观需要另行检查骨骼与动作映射。
 
-## v0.1.2 更新
+## v0.1.4 更新
 
-- 根据当前游戏原始程序集重新生成战斗计算器。已结算 Recap 输入可能保留战前命元，MOD 校验记录的战斗结果后，使用游戏原生扣除规则判断最终命元。
-- 保留游戏原本的出牌结果任务，只在效果执行前等待演出时间点，消除 Windows 缺失泛型 AOT 代码造成的第一张牌停顿。原生伤害、出牌结果与被动效果顺序保持不变。
-- 屠馗膝部调整使用 Windows 已保留的原生时间线，避免调用被裁剪的 Spine 设置方法。20 个姿势的骨骼与世界网格对照完全一致；动作、表情和声音沿用 v0.1.1。
-- 构建与打包必须通过同版本 Windows 原生 API 静态检查。缺失方法、字段、类型或泛型实例会在执行演出前被发现；游戏更新后必须准备匹配的检查输入。
+- 修复屠馗火焰全部 30 帧中原豪鬼身体与脚部留下的空洞。每帧仍为原生 290 × 265 像素，仅使用原有颜色；修复区域以外的像素保持不变。
+- 根据街机参考调整两套声音的相对音量，包括屠馗启动、林小月时停、飞刀与命中混音。音轨长度仍分别为 6.8 秒和 11.1 秒，保持现有演出时间表。
+- 保留 v0.1.3 的角色动作、原生手型、触发条件、伤害时间点、Windows／内置 Recap／练习输入支持。人物与表情贴图没有更换。
 
 ## 安装
 
@@ -32,15 +31,13 @@ v0.1.2 适配 Steam build `26939223`，修复内置复盘（Recap）的淘汰判
 
 ## 验证
 
-当前插件 SHA-256：`30b06f86a170224ec83a0e971081b307f1ca950608dc45666a2f4a3aa8a02912`。静态检查通过，错误数为零；检查器也正确拒绝旧版两个实际缺失的原生 API、过期输入摘要和错误重载。全部九种外观绑定、最终直接引用、运行时反射禁用规则和官方 SDK checker 均已通过。
+修复后的 30 帧火焰已逐帧及按相邻帧顺序检查；原生尺寸、原有调色板和修复区域以外的像素逐一核对通过。两个音轨的采样格式与长度仍与播放器声明一致，其余八份素材与 v0.1.3 相同。最终 DLL 内十一项命名素材工厂的字节与已审阅 PNG/WAV 逐字节相同。
 
-同一 DLL 使用官方 Windows 加载器 v1.0.1 附带的原始 SDK，在实际 Windows IL2CPP 客户端（macOS 上的 Whisky Wine）通过三项检查：
+v0.1.4 插件 SHA-256：`7a98b87286fdafe82b7551e6e8c25d888d3dd8d181b7b5e3e61615fe4e69d1cd`（5,599,232 字节）。最终 DLL 已通过 Steam build `26965567` 的 Windows 原生 API、直接引用及运行时反射禁用检查；官方 SDK checker 报告 0 个错误、932 个警告。发布 ZIP SHA-256：`865a0608438613e1816f40017c1abe324dd92517d411a2b5e5cb32c44b7ae029`（4,569,221 字节）。
 
-- 屠馗回放：完整 6.8 秒演出与原生伤害／命元结算。
-- 林小月回放：完整 11.1 秒演出；飞刀阶段清除护体并造成伤害，压路机阶段完成致命伤害。
-- 原始内置 Recap 战斗及上下文：完整 11.1 秒演出与正确淘汰结果，输入未转换为战绩回放。
+上述同一 v0.1.4 DLL 已在 Steam build `26965567` 的实际 Windows IL2CPP 游戏中，使用 macOS Whisky Wine 完成屠馗、林小月和内置 Recap 三项离线运行。完整演出、原生伤害／命元、结束保持、重播清理、状态栏恢复及 SDK 停用均通过，三个测试进程全部退出，保留正在运行的玩家游戏。实际取样画面覆盖屠馗热血服装和林小月睡衣服装，检查了修复火焰、压路机及结束姿势；不代表本次逐一运行了全部外观。
 
-三次运行均通过结束保持、重播清理和状态栏恢复；测试进程正常退出，并保留正在运行的游戏。两套回放均已取得 Windows 画面；本次未新增声音录制或听音验证。
+测试使用真实 Windows 可执行文件，但宿主是 Wine，并非 Windows 系统。测试启动器从保存的回放／Recap 数据调用原生战斗接口，不是登录账号或加载器安装界面的端到端测试。已检查 AudioSource 播放时钟及嵌入的音频字节；测试关闭了监听器输出，因此没有新增实际声音录制或听感验收。
 
 ## 开发与素材
 
@@ -52,8 +49,10 @@ Two elimination cinematics for Airexplosion's Yi Xian Pai mod loader. Tu Kui per
 
 Tu Kui must actually play Realm-Killing Palms or Carefree Shadowless Fist during the eliminating turn. Lin Xiaoyue needs an earlier completed card activation in the same turn to make at least two attacks **and** clear Guard Up, followed by Dharma Spirit Sword's direct killing attack. The defeated opponent must not be an inner demon and must lose their remaining Destiny. Extra Cat Shadow attacks count. Both characters use only the game's original costume and facial textures.
 
-Version 0.1.2 targets Steam build `26939223`. It fixes built-in Recap elimination detection, keeps the native card-result task to avoid a missing Windows AOT specialization, and uses a preserved native IK timeline for Tu Kui without changing any of the 20 poses. Builds and packaging require a static API audit against the matching Windows player; the final DLL passes, and the checker rejects both known-broken versions plus stale-input and wrong-overload controls.
+Version 0.1.4 targets Steam build `26965567`. It repairs the original fighter-shaped and foot-shaped gaps across all 30 Tu Kui flame frames, retaining the native 290 × 265 cell size, original colors and every pixel outside the repair region. It also updates both sound mixes while keeping the 6.8-second Tu Kui and 11.1-second Lin Xiaoyue timelines. The v0.1.3 poses, native hands, trigger rules, damage cues, Windows compatibility, Recap and practice support are retained. Character and facial textures are unchanged.
 
-The exact DLL above passed Tu Kui’s 6.8-second replay, Lin’s 11.1-second replay, and an unchanged built-in Recap battle/context in the actual Windows IL2CPP player under Whisky Wine, using the SDK DLLs bundled with the official Windows loader v1.0.1. Native damage/Destiny results, held endings, replay cleanup and status-bar restoration passed; all private test processes exited normally and active play was preserved. Both replay runs captured Windows frames. Audio was not newly recorded or reviewed.
+All 30 repaired frames and their ordered transitions have been reviewed, and the native dimensions, palette and protected pixels verified. Both audio files still match the declared PCM format and duration; the other eight media files are unchanged. All eleven named media factories in the final DLL contain the exact reviewed PNG/WAV bytes. The final v0.1.4 DLL is SHA-256 `7a98b87286fdafe82b7551e6e8c25d888d3dd8d181b7b5e3e61615fe4e69d1cd` (5,599,232 bytes). It passes the current Windows native API, direct-reference and no-runtime-reflection audits; the official SDK checker reports 0 errors and 932 warnings. The release ZIP is SHA-256 `865a0608438613e1816f40017c1abe324dd92517d411a2b5e5cb32c44b7ae029` (4,569,221 bytes).
+
+This exact v0.1.4 DLL passed three offline runs in the actual Windows IL2CPP game, Steam build `26965567`, under Whisky Wine on macOS: Tu Kui, Lin Xiaoyue and Recap. Full movies, native damage/Destiny, held endings, replay cleanup, status-bar restoration and SDK disable passed; all test processes exited while preserving active player games. Reviewed native samples cover Tu Kui’s Hot Blood costume and Lin Xiaoyue’s hooded costume, including the repaired flame and roller ending. This is Windows-executable testing under Wine, not a Windows OS host or every-costume run. The private startup invokes native battle APIs with saved replay/Recap data, rather than testing account login or the loader installer UI. AudioSource clocks and exact embedded audio bytes were checked; the harness muted output, so no new audible recording or listening acceptance is claimed.
 
 Import the release ZIP through the mod manager, enable it, then restart after finishing any active game. Do not enable it alongside an integrated mod that already contains these finishers.

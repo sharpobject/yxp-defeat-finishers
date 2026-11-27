@@ -16,13 +16,13 @@ import struct
 from pathlib import Path
 
 
-# filename, direct runtime method, reviewed checkpoint16 SHA-256
+# filename, direct runtime method, reviewed release-media SHA-256
 ASSETS = (
-    ("tu-raging-demon.wav", "TuRagingDemon", "03ca96737b8fca0b4de5bb6d60ef7f5dcb9748450d896acbd3f09af464ba501c"),
-    ("lin-roadroller.wav", "LinRoadroller", "58f9a1a26da6c37b6f990bc0ea311fecd8992043fd6d19752b1fdf92ee1bc58b"),
+    ("tu-raging-demon.wav", "TuRagingDemon", "da5db72985fdf3248fb917e885c335083776233ef54a5fd3a32b1812cfa120f0"),
+    ("lin-roadroller.wav", "LinRoadroller", "5d2bc4b6e741f3e80df163d19568ff156ad880806780bfff38cecfcd5bf3176a"),
     ("steamroller.png", "Steamroller", "902e76c38038a082787d1307fe3aaa8a5a75e2703e1c94123c0d4e3d67dd669b"),
     ("duck-calligraphy.png", "DuckCalligraphy", "3a5a963434efe5973b68bc3ad517b1e0bb1aee5045ceecfe21294716f88a7f48"),
-    ("tu-third-strike-flame.png", "TuFlame", "5b83513b34f80396cf84f318de72a9b6427494afc0fefc6189c967329d4bd7ba"),
+    ("tu-third-strike-flame.png", "TuFlame", "3e9dd301288d11c9e044d511a0fff038179bd7162e7967b21ded655dbcd76b68"),
     ("dio-knife.png", "DioKnife", "5a8932147b804ffbbeccc58aa1232788066d42be55ae82fdd9d20cc7751fecea"),
     ("dio-superflash.png", "DioSuperflash", "fb87cbbb0f4286361f01239121fda333019f6c380b55f882d8c858c625db22a1"),
     ("tu-third-strike-superflash.png", "TuSuperflash", "8fb112cbc9be19adb94744cbbb91e1b684e3ea7d34f671a4fbcc87637d01ed55"),
