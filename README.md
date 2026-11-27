@@ -2,7 +2,7 @@
 
 弈仙牌双角色淘汰演出 MOD，使用 [Airexplosion 的 MOD SDK](https://github.com/Airexplosion/yixianpai-mod-sdk)。屠馗完成《Street Fighter III: 3rd Strike》风格的瞬狱杀；林小月完成时停、飞刀与压路机演出。
 
-v0.1.3 针对 Steam build `26939223`，改进屠馗滑行护架、林小月时停与飞刀动作，以及结束姿势的原生手型。
+v0.1.4 针对 Steam build `26965567`，修复屠馗火焰中残留的人形与脚部空洞，并更新屠馗和林小月的声音混音。
 
 ## 触发条件
 
@@ -15,12 +15,11 @@ v0.1.3 针对 Steam build `26939223`，改进屠馗滑行护架、林小月时�
 
 支持屠馗两套服装及其换色、林小月三套服装及其换色，共九种外观。人物与表情仅使用游戏自带贴图；林小月没有另绘喊叫面部。音量跟随游戏音效设置。新增外观需要另行检查骨骼与动作映射。
 
-## v0.1.3 更新
+## v0.1.4 更新
 
-- 屠馗滑行时使用各服装原有的闭合拳头与对应前臂，降低高举的护架，让拳头和肘部轮廓更清楚；已经修好的腿、靴子和护膝保持不变。
-- 林小月时停和准备动作收紧肘部并握拳。飞刀出手后更早进入后仰姿势，并稍延长该姿势的停留，让甩臂轮廓更容易看清。
-- 林小月结束姿势使用原生弯曲手指／猫爪及其配套手掌层，不新增人物或表情贴图。
-- 保留 v0.1.2 的 Windows、内置 Recap 和练习输入修复，以及构建时的同版本 Windows 原生 API 检查。触发条件、伤害时间点和声音时间线不变。
+- 修复屠馗火焰全部 30 帧中原豪鬼身体与脚部留下的空洞。每帧仍为原生 290 × 265 像素，仅使用原有颜色；修复区域以外的像素保持不变。
+- 根据街机参考调整两套声音的相对音量，包括屠馗启动、林小月时停、飞刀与命中混音。音轨长度仍分别为 6.8 秒和 11.1 秒，保持现有演出时间表。
+- 保留 v0.1.3 的角色动作、原生手型、触发条件、伤害时间点、Windows／内置 Recap／练习输入支持。人物与表情贴图没有更换。
 
 ## 安装
 
@@ -32,11 +31,13 @@ v0.1.3 针对 Steam build `26939223`，改进屠馗滑行护架、林小月时�
 
 ## 验证
 
-当前 0.1.3 插件 SHA-256：`71f911d6cfb7cf0b4737b5b7527b0cac32187c3b7f50b46f3dcbfe323ab33428`（5,526,016 字节）。最终 DLL 通过当前 Windows 原生 API、直接引用及运行时反射禁用检查；Windows 静态检查错误数为零。官方 SDK checker 报告 0 个错误、932 个警告。
+修复后的 30 帧火焰已逐帧及按相邻帧顺序检查；原生尺寸、原有调色板和修复区域以外的像素逐一核对通过。两个音轨的采样格式与长度仍与播放器声明一致，其余八份素材与 v0.1.3 相同。最终 DLL 内十一项命名素材工厂的字节与已审阅 PNG/WAV 逐字节相同。
 
-相同动作源码已在原生 Mac 整合客户端完成五次实际回放，覆盖林小月三种和屠馗两种身体模型。完整演出、伤害／命元、结束保持、重播清理和状态栏恢复通过，五个测试进程均正常退出。其余四种换色经过本次原生 Spine 样张与几何检查，不计为额外游戏运行。
+v0.1.4 插件 SHA-256：`7a98b87286fdafe82b7551e6e8c25d888d3dd8d181b7b5e3e61615fe4e69d1cd`（5,599,232 字节）。最终 DLL 已通过 Steam build `26965567` 的 Windows 原生 API、直接引用及运行时反射禁用检查；官方 SDK checker 报告 0 个错误、932 个警告。发布 ZIP SHA-256：`865a0608438613e1816f40017c1abe324dd92517d411a2b5e5cb32c44b7ae029`（4,569,221 字节）。
 
-本次没有执行新 DLL 的 Windows 播放测试，也没有新增实际声音录制。旧版 Windows 实际运行记录仍归属于 0.1.2；静态 API 检查不代替画面或声音验收。
+上述同一 v0.1.4 DLL 已在 Steam build `26965567` 的实际 Windows IL2CPP 游戏中，使用 macOS Whisky Wine 完成屠馗、林小月和内置 Recap 三项离线运行。完整演出、原生伤害／命元、结束保持、重播清理、状态栏恢复及 SDK 停用均通过，三个测试进程全部退出，保留正在运行的玩家游戏。实际取样画面覆盖屠馗热血服装和林小月睡衣服装，检查了修复火焰、压路机及结束姿势；不代表本次逐一运行了全部外观。
+
+测试使用真实 Windows 可执行文件，但宿主是 Wine，并非 Windows 系统。测试启动器从保存的回放／Recap 数据调用原生战斗接口，不是登录账号或加载器安装界面的端到端测试。已检查 AudioSource 播放时钟及嵌入的音频字节；测试关闭了监听器输出，因此没有新增实际声音录制或听感验收。
 
 ## 开发与素材
 
@@ -48,8 +49,10 @@ Two elimination cinematics for Airexplosion's Yi Xian Pai mod loader. Tu Kui per
 
 Tu Kui must actually play Realm-Killing Palms or Carefree Shadowless Fist during the eliminating turn. Lin Xiaoyue needs an earlier completed card activation in the same turn to make at least two attacks **and** clear Guard Up, followed by Dharma Spirit Sword's direct killing attack. The defeated opponent must not be an inner demon and must lose their remaining Destiny. Extra Cat Shadow attacks count. Both characters use only the game's original costume and facial textures.
 
-Version 0.1.3 targets Steam build `26939223`. Tu Kui's glide uses a clearer closed-fist guard with matching original forearm views; his repaired legs, boots and kneepads are retained. Lin Xiaoyue bends her arms and closes her hands during time stop, reaches a stronger backward knife follow-through earlier, holds it longer, and uses original curled hands or paws for her ending pose. Trigger rules, damage cues and audio timing remain unchanged.
+Version 0.1.4 targets Steam build `26965567`. It repairs the original fighter-shaped and foot-shaped gaps across all 30 Tu Kui flame frames, retaining the native 290 × 265 cell size, original colors and every pixel outside the repair region. It also updates both sound mixes while keeping the 6.8-second Tu Kui and 11.1-second Lin Xiaoyue timelines. The v0.1.3 poses, native hands, trigger rules, damage cues, Windows compatibility, Recap and practice support are retained. Character and facial textures are unchanged.
 
-The release retains the Windows, Recap and practice-input fixes and mandatory same-version Windows native API audit. The final DLL above passes the Windows native API, direct-reference and no-runtime-reflection checks. The official SDK checker reports 0 errors and 932 warnings. The shared pose sources were reviewed in five actual integrated Mac replay runs covering all five body models, with full movies, damage/Destiny, held endings and replay cleanup; all test processes exited normally. The four recolors have fresh offline native Spine review. This new DLL has not been playback-tested on Windows, and audible output was not newly captured; previous Windows evidence remains attached to v0.1.2.
+All 30 repaired frames and their ordered transitions have been reviewed, and the native dimensions, palette and protected pixels verified. Both audio files still match the declared PCM format and duration; the other eight media files are unchanged. All eleven named media factories in the final DLL contain the exact reviewed PNG/WAV bytes. The final v0.1.4 DLL is SHA-256 `7a98b87286fdafe82b7551e6e8c25d888d3dd8d181b7b5e3e61615fe4e69d1cd` (5,599,232 bytes). It passes the current Windows native API, direct-reference and no-runtime-reflection audits; the official SDK checker reports 0 errors and 932 warnings. The release ZIP is SHA-256 `865a0608438613e1816f40017c1abe324dd92517d411a2b5e5cb32c44b7ae029` (4,569,221 bytes).
+
+This exact v0.1.4 DLL passed three offline runs in the actual Windows IL2CPP game, Steam build `26965567`, under Whisky Wine on macOS: Tu Kui, Lin Xiaoyue and Recap. Full movies, native damage/Destiny, held endings, replay cleanup, status-bar restoration and SDK disable passed; all test processes exited while preserving active player games. Reviewed native samples cover Tu Kui’s Hot Blood costume and Lin Xiaoyue’s hooded costume, including the repaired flame and roller ending. This is Windows-executable testing under Wine, not a Windows OS host or every-costume run. The private startup invokes native battle APIs with saved replay/Recap data, rather than testing account login or the loader installer UI. AudioSource clocks and exact embedded audio bytes were checked; the harness muted output, so no new audible recording or listening acceptance is claimed.
 
 Import the release ZIP through the mod manager, enable it, then restart after finishing any active game. Do not enable it alongside an integrated mod that already contains these finishers.

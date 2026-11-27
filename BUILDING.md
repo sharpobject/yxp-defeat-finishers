@@ -29,14 +29,14 @@ reports/yxp/defeat-finishers-20261125/
 reports/yxp/retail-language-gamewide-20261031/refresh-review/card-descriptions/OwnedAccumulatedText.cs
 ```
 
-计算器生成器还使用该工作区相邻的 `yisim/tools/game_oracle_builder` 作者工具。`generated/runtime` 是本机游戏生成的输入，不是可提交到公开仓库的源码。素材摘要在 `source/emit_media.py` 中声明；构建时必须逐一匹配。
+计算器生成器还使用该工作区相邻的 `yisim/tools/game_oracle_builder` 作者工具。`generated/runtime` 是本机游戏生成的输入，不是可提交到公开仓库的源码。素材摘要在 `source/emit_media.py` 中声明；构建时必须逐一匹配。v0.1.4 更新两份 WAV 和火焰 PNG 的摘要，其余八份素材不变。火焰图集仍为 1740 × 1325 像素，按 6 列 × 5 行存放 30 个 290 × 265 原生帧；音轨仍为单声道 16 位、22050 Hz PCM，屠馗 149940 个采样（6.8 秒），林小月 244755 个采样（11.1 秒）。
 
 ```sh
 python3 source/build.py --workspace "$YXP_WORKSPACE" --sdk "$YXP_SDK" \
   --bundles "$YXP_FINISHER_BUNDLES"
 ```
 
-默认输入由工作区 `targets.json` 的 `retail` 项选择，构建会通过 `target_config.py` 校验原始输入及 HotUpdate 摘要。先用工作区维护的提取流程准备当前游戏，再运行此命令。v0.1.3 针对 Steam build `26939223`；发布前必须为最终 DLL 保留本次静态检查和相应客户端的验证结果。
+默认输入由工作区 `targets.json` 的 `retail` 项选择，构建会通过 `target_config.py` 校验原始输入及 HotUpdate 摘要。先用工作区维护的提取流程准备当前游戏，再运行此命令。v0.1.4 针对 Steam build `26965567`；发布前必须为最终 DLL 保留本次静态检查和相应客户端的验证结果。
 
 `YXP_SDK` 指向官方 SDK 仓库根目录，需含 `sdk/net40` 和 `tools/yx-patch.dll`。`YXP_FINISHER_BUNDLES` 指向与输入 catalog 匹配的完整原生 AssetBundle 目录；构建只读该目录，检查当前配置的全部九种外观与 Spine 字节摘要。仅有 HotUpdate/config 的精简提取目录不够。可用 `--game-input` 指定具有上述完整文件布局的另一个已提取游戏输入目录；不同游戏版本需要重新生成计算器并验证布局和动作绑定。
 
@@ -67,13 +67,15 @@ python3 source/build.py --workspace "$YXP_WORKSPACE" --sdk "$YXP_SDK" \
 
 ## 当前实现与验证边界
 
-v0.1.3 更新屠馗滑行护架、林小月时停和飞刀动作，以及原生结束手型；没有改变触发规则、伤害时间点或声音时间线。游戏原有的骨骼、贴图和服装映射仍是人物动作的数据来源。
+v0.1.4 更新全部 30 帧屠馗火焰与两份声音混音，保留 v0.1.3 的人物动作、原生手型、触发规则和伤害时间点。图集布局、音频格式及两套演出的总时长不变，无需更改媒体读取声明。游戏原有的骨骼、贴图和服装映射仍是人物动作的数据来源。
 
 Windows 原生 API 检查必须针对最终发布 DLL 重新运行。它检查方法、字段、类型和具体泛型实例，接口／抽象方法的虚调用只证明保留的分派声明，不声称静态证明每个运行时实现或画面表现。官方 SDK checker、直接引用检查、运行时反射禁用检查和全部九种外观绑定检查仍是正常构建的一部分。
 
 Recap 的已结算输入可能携带战前命元。计算器校验原始战斗结果后，调用原生命元扣除逻辑取得最终命元。播放保留 `CardActionBase.Execute` 的原生结果任务，只在其非泛型 `ExecuteEffect` 前等待演出；无需构造 Windows 没有 AOT 代码的额外泛型 completion source。屠馗必要的膝部变化使用已保留的原生 `IkConstraintTimeline`。
 
-当前 0.1.3 的最终 DLL 摘要与验证结果见 README。最终 Windows 静态检查通过（零错误），匹配 181 个普通原生方法、101 个具体泛型方法和 5 个已证明可共享引用类型代码的方法。官方 SDK checker 报告 0 个错误、932 个警告。相同动作源码在原生 Mac 整合客户端完成五种身体模型的实际回放；四种换色另有原生 Spine 样张检查。v0.1.2 的 Windows 三项实际运行证据保持归属于旧 DLL，不能作为新版本的 Windows 画面或声音验证。原生回放检查应同时查看原生伤害／命元、结束保持、重播清理和状态栏恢复，并确认每个测试进程已退出。
+发布检查按 `FinisherMedia` 的十一项命名方法读取最终插件的编译后 RVA 字节，逐一比对已审阅 PNG/WAV 的长度、SHA-256 及完整字节；不能仅以素材生成源码的摘要证明最终 DLL 中的内容。v0.1.4 的十一项检查全部通过。该检查在开发工具中完成，游戏内仍只调用直接字节数组工厂。
+
+v0.1.4 的最终 DLL 与 ZIP 摘要、静态检查及本次实际运行结果见 README。同一最终 DLL 已在当前 Steam build `26965567` 的真实 Windows IL2CPP 游戏中，通过 macOS Whisky Wine 完成屠馗、林小月与内置 Recap 三项运行；完整演出、原生伤害／命元、结束保持、重播清理、状态栏恢复及 SDK 停用通过，三个测试进程全部退出。实际取样画面覆盖屠馗热血和林小月睡衣服装，不是全部外观覆盖。测试从保存的回放／Recap 数据启动原生战斗，不代表 Windows 系统宿主、账号登录或加载器安装界面的端到端验证。AudioSource 播放时钟和媒体字节已检查；监听器输出静音，没有新增实际声音录制或听感验收。后续版本仍需对新的最终 DLL 重做这些检查；静态检查、Mac 运行或历史版本通过均不能替代当前 Windows 可执行文件的实际运行。
 
 ## 打包
 
